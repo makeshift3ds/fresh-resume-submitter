@@ -1,61 +1,73 @@
 const program = require('commander')
+const { prompt } = require('inquirer')
 const fs = require('fs')
-const fetch = require('node-fetch')
+const postResume = require('./postResume')
+const questions = require('./questions')
+const path = require('path')
 
 // option defaults
 let defaults = {
-  resumePath: './resume.json',
+  path: './resume.json',
   url: 'http://localhost:3000/resumes'
 }
 
 // process cli arguments
 program
   .version('0.0.1-alpha')
-  .option('-p, --path [str]', 'path to the json configuration')
+
+program
+  .command('apply') // No need of specifying arguments here
+  .alias('a')
+  .option('-p, --path [str]', 'path to the resume json file in FRESH format')
   .option('-u, --url [str]', 'json api url')
-  .parse(process.argv)
+  .description('send resume to api')
+  .action((cmd) => {
+    const firstQuestions = questions.slice(0, 2)
 
-// option defaults
-let conf = {
-  resumePath: program.path || defaults.resumePath,
-  apiUrl: program.url || defaults.url
+    firstQuestions.map(question => {
+      question.default = () => cmd[question.name] || defaults[question.name]
+    })
+
+    prompt(firstQuestions).then((answers) => {
+      // wip - verification output
+      console.log(JSON.stringify(answers, null, 1))
+
+      // read the file
+      let resumeRaw = {}
+      let absolutePath = path.resolve(answers.path || cmd.path)
+
+      try {
+        resumeRaw = fs.readFileSync(absolutePath, 'utf-8')
+      } catch (e) {
+        throw e
+      }
+
+      prompt(questions.slice(-1)).then(confirmation => {
+        if (confirmation.permit.toLowerCase().match('n')) {
+          console.log('You have chosen not to submit your resume', answers)
+          process.exit()
+        }
+
+        // option defaults
+        let url = answers.url || cmd.url
+
+        let fetchOptions = {
+          method: 'post',
+          body: resumeRaw,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        }
+
+        postResume({ url, fetchOptions })
+      })
+    })
+  })
+
+if (!process.argv.slice(2).length || !/[arudl]/.test(process.argv.slice(2))) {
+  program.outputHelp()
+  process.exit()
 }
 
-// read the file
-try {
-  conf.resumeRaw = fs.readFileSync(conf.resumePath, 'utf-8')
-} catch (e) {
-  throw e
-}
-
-class Submitter {
-  constructor ({ apiUrl, fetchOptions }) {
-    this._conf = { apiUrl, fetchOptions }
-  }
-
-  async _sendRequest () {
-    this.response = await fetch(this._conf.apiUrl, this._conf.fetchOptions)
-    this.json = await this.response.json()
-    console.log(this.json)
-  }
-
-  async doStuff () {
-    try {
-      await this._sendRequest()
-    } catch (e) {
-      throw e
-    }
-  }
-}
-
-let fetchOptions = {
-  method: 'post',
-  body: conf.resumeRaw,
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  }
-}
-
-let submitter = new Submitter({ apiUrl: conf.apiUrl, fetchOptions })
-submitter.doStuff()
+program.parse(process.argv)
