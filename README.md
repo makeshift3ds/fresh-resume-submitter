@@ -16,7 +16,7 @@ A command line interface for sending a developer resume to a job opening API.
 
 clone repository to local machine
 
-`git clone https://github.com/kenelliottmc/fresh-resume-submitter`
+`git clone https://github.com/kenelliottmc/fresh-resume-submitter && cd fresh-resume-submitter`
 
 install dependencies
 
@@ -35,11 +35,11 @@ install package
 
 ###### Send Application
 
-`fresh-resume-submitter`
+`fresh-resume-submitter -u https://api.teamwork.com/resumes`
 
 ###### Override Configuration Path
 
-`fresh-resume-submitter -p ./path/to/file`
+`fresh-resume-submitter -p ./path/to/file -u https://api.teamwork.com/resumes`
 
 ### Arguments
 <a name="arguments"></a>
@@ -49,3 +49,6 @@ install package
 
 **-p, --path**
 > override current path
+
+**-u, --url**
+> json api url
