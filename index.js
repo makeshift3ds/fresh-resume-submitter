@@ -7,5 +7,3 @@ program
 
 // Program Execution
 if (program.path) console.log(`path is set to ${program.path}`)
-
-// console.log(program);
