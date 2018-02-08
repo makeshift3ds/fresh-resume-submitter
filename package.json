@@ -6,10 +6,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "fresh-resume-submitter": "./index.js"
+  },
   "keywords": [
     "fresh",
     "resume"
   ],
   "author": "makeshift3ds@gmail.com",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^2.14.1"
+  }
 }
