@@ -4,6 +4,8 @@
   "description": "serialize fresh resume json for developer application submission",
   "main": "index.js",
   "scripts": {
+    "start:server": "json-server --watch json-server-db.json --middlewares json-server-middleware.js",
+    "watch:server": "nodemon --watch json-server-middleware.js --exec \"npm run start:server\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
@@ -17,6 +19,7 @@
   "license": "ISC",
   "dependencies": {
     "commander": "^2.14.1",
+    "json-server": "^0.12.1",
     "node-fetch": "^2.0.0"
   },
   "devDependencies": {
@@ -25,6 +28,7 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-node": "^6.0.0",
     "eslint-plugin-promise": "^3.6.0",
-    "eslint-plugin-standard": "^3.0.1"
+    "eslint-plugin-standard": "^3.0.1",
+    "nodemon": "^1.14.12"
   }
 }

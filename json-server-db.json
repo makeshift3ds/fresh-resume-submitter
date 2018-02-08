@@ -1,0 +1,12 @@
+{
+  "resumes": [
+    {
+      "id": 1,
+      "name": "Anthony Kiedis"
+    },
+    {
+      "id": 2,
+      "name": "Vanna White"
+    }
+  ]
+}
