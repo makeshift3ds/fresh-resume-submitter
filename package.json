@@ -1,12 +1,15 @@
 {
   "name": "fresh-resume-submitter",
   "version": "1.0.0",
-  "description": "",
+  "description": "serialize fresh resume json for developer application submission",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "fresh",
+    "resume"
+  ],
+  "author": "makeshift3ds@gmail.com",
   "license": "ISC"
 }
