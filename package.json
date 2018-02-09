@@ -4,8 +4,8 @@
   "description": "serialize fresh resume json for developer application submission",
   "main": "index.js",
   "scripts": {
-    "start:server": "json-server --watch json-server-db.json --middlewares json-server-middleware.js",
-    "watch:server": "nodemon --watch json-server-middleware.js --exec \"npm run start:server\"",
+    "start:server": "json-server --watch conf/json-server-db.json --middlewares conf/json-server-middleware.js",
+    "watch:server": "nodemon --watch conf/json-server-middleware.js --exec \"npm run start:server\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {

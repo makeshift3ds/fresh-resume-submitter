@@ -1,13 +1,13 @@
 const program = require('commander')
 const { prompt } = require('inquirer')
-const fs = require('fs')
-const postResume = require('./postResume')
-const questions = require('./questions')
-const path = require('path')
+const postResume = require('./lib/post-resume')
+const questions = require('./lib/questions')
+const freshSerializer = require('./lib/fresh-serializer')
+const freshFormatters = require('./conf/fresh-formatters')
 
 // option defaults
 let defaults = {
-  path: './resume.json',
+  path: './conf/resume.json',
   url: 'http://localhost:3000/resumes'
 }
 
@@ -21,39 +21,34 @@ program
   .option('-p, --path [str]', 'path to the resume json file in FRESH format')
   .option('-u, --url [str]', 'json api url')
   .description('send resume to api')
-  .action((cmd) => {
-    const firstQuestions = questions.slice(0, 2)
+  .action(cmd => {
+    questions.setDefaults({ cmd, defaults })
 
-    firstQuestions.map(question => {
-      question.default = () => cmd[question.name] || defaults[question.name]
-    })
+    prompt(questions.getFirstGroup()).then(async answers => {
+      const freshResumeRaw = await freshSerializer.readFileSync(answers.path)
+      const freshResumeParsed = freshSerializer.parse(freshResumeRaw)
 
-    prompt(firstQuestions).then((answers) => {
-      // wip - verification output
-      console.log(JSON.stringify(answers, null, 1))
-
-      // read the file
-      let resumeRaw = {}
-      let absolutePath = path.resolve(answers.path || cmd.path)
-
-      try {
-        resumeRaw = fs.readFileSync(absolutePath, 'utf-8')
-      } catch (e) {
-        throw e
+      if (!freshResumeParsed) {
+        console.log(`${answers.path} is not valid json`)
+        process.exit()
       }
 
-      prompt(questions.slice(-1)).then(confirmation => {
+      const freshResumeSerialized = freshSerializer.serialize(freshResumeParsed, freshFormatters)
+
+      console.log(JSON.stringify(JSON.parse(freshResumeSerialized), null, 1))
+
+      prompt(questions.getLastGroup()).then(confirmation => {
         if (confirmation.permit.toLowerCase().match('n')) {
           console.log('You have chosen not to submit your resume', answers)
           process.exit()
         }
 
-        // option defaults
+        // postResume request options
         let url = answers.url || cmd.url
 
         let fetchOptions = {
           method: 'post',
-          body: resumeRaw,
+          body: freshResumeSerialized,
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -69,5 +64,9 @@ if (!process.argv.slice(2).length || !/[arudl]/.test(process.argv.slice(2))) {
   program.outputHelp()
   process.exit()
 }
+
+process.on('unhandledRejection', error => {
+  console.log('unhandledRejection', error.message, error.stack)
+})
 
 program.parse(process.argv)
