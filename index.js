@@ -24,8 +24,14 @@ program
   .action(cmd => {
     questions.setDefaults({ cmd, defaults })
 
-    prompt(questions.getFirstGroup()).then(async answers => {
-      const freshResumeRaw = await freshSerializer.readFileSync(answers.path)
+    prompt(questions.getFirstGroup()).then(answers => {
+      const freshResumeRaw = freshSerializer.readFileSync(answers.path)
+
+      if (!freshResumeRaw) {
+        console.log(`${answers.path} could not be found`)
+        process.exit()
+      }
+
       const freshResumeParsed = freshSerializer.parse(freshResumeRaw)
 
       if (!freshResumeParsed) {
